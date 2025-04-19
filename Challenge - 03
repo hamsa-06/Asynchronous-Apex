@@ -1,0 +1,22 @@
+Send birthday wishes to Contacts with today’s date of birth using Schedulable Apex running daily.
+
+public with sharing class SendBirthdayWishes implements Schedulable {
+    public void execute(SchedulableContext  sc){
+        List<Contact> contact = [SELECT Id,Name,Birthdate,email FROM Contact WHERE Birthdate =: Date.today()];
+        List<Messaging.SingleEmailMessage> mails = new List<Messaging.SingleEmailMessage>();
+        for(Contact c:contact){
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setToAddresses(new String[] {c.email});
+            mail.setSubject('Happy Birthday To You!');
+            String body = 'Dear '+c.name +',\n\n'+'Wishing you a very Happy Birthday!\n\n' +
+                            'Best Wishes,\nHamsa Team';
+            mail.setPlainTextBody(body);
+            mails.add(mail);
+        }
+        if(!mails.isEmpty()){
+            Messaging.sendEmail(mails);
+            System.debug('Birthday Wishes Send Successfully');
+        }
+    }
+    
+}
