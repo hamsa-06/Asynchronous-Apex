@@ -1,0 +1,26 @@
+Schedule weekly case escalation checks to flag unresolved Cases that are older than a week.
+
+public with sharing class CaseResolved implements Database.Batchable<SObject> {
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        Date cutoff = System.today().addDays(-7);
+        String query = 'SELECT id,isEscalated__c FROM Case WHERE Status != \'Closed\' AND CreatedDate <= : cutooff ';
+        return Database.getQueryLocator(query);
+    }
+    public void execute(Database.BatchableContext bc,List<Case> cs){
+        for(Case c:cs){
+            c.isEscalated__c = True;
+        }
+        update cs;
+    }
+    public void finish(Database.BatchableContext bc){
+        System.debug('Cases older than 7 days have been escalated successfully');
+    }
+    
+}
+
+public with sharing class CaseEscalationSchedule  implements Schedulable{
+    public void execute(SchedulableContext sc){
+        CaseResolved cr = new CaseResolved();
+        Database.executeBatch(cr,30);
+    }
+}
