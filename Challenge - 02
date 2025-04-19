@@ -1,0 +1,15 @@
+Clean up inactive Lead records older than 6 months using Batch Apex for deletion.
+
+public with sharing class AutoDeleteLeads implements Database.Batchable<SObject>{
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        Date cutoff = System.today().addDays(-60);
+        String query = 'SELECT id FROM lead WHERE LastModifiedDate <= :cutoff';
+        return Database.getQueryLocator(query);
+    }
+    public void execute(Database.BatchableContext bc,List<Sobject> ld){
+        delete ld;
+    }
+    public void finish(Database.BatchableContext bc){
+        System.debug('Leads older than 60 days have been deleted successfully');
+    }
+}
