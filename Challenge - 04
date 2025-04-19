@@ -1,0 +1,27 @@
+Generate monthly reports on Opportunity performance and email it to sales managers using Schedulable Apex.
+
+public with sharing class MonthlySalesReport implements Database.Batchable<SObject>{
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        String query = 'SELECT Id,StageName,CloseDate,CreatedDate FROM Opportunity WHERE CreatedDate =: Last_Month and StageName IN (\'Closed Won\',\'Closed Lost\') GROUP BY Owner.name';
+        return Database.getQueryLocator(query);
+    }
+    public void execute(Database.BatchableContext bc,List<Opportunity> op){
+        Integer totalClosedWon = 0;
+        Integer totalClosedLost = 0;
+        for(Opportunity o : op){
+            if(o.StageName == 'Closed Won'){
+                totalClosedWon += o.Amount;
+            } else if(o.StageName == 'Closed Lost'){
+                totalClosedLost += o.Amount;
+            }
+        }
+    }
+    public void finish(Database.BatchableContext bc){
+        System.debug('Monthly Sales Report : Closed Won :'+totalClosedWon + 'Closed Lost :'+totalClosedLost);
+        Messaging.SingleMailMessage mail = new Messaging.SingleMailMessage();
+        mail.setToAddresses(new String[] {o.Owner.Email});
+        mail.setSubject('Monthly Sales Report');
+        mail.setPlainTextBody('Monthly Sales Report : Closed Won :'+totalClosedWon + 'Closed Lost :'+totalClosedLost);
+        mail.sendEmail(new Messaging.SingleMailMessage[] {mail});
+    }
+}
