@@ -1,0 +1,16 @@
+Send a welcome email to a new Lead using a @future method after it's inserted.
+
+public with sharing class SendRegistrationEmail {
+    @future
+    public static void sendEmail(String Email){
+        Messaging.SingleEmailMessage emails = new Messaging.SingleEmailMessage();
+        emails.setToAddresses(new String[] {Email});
+        emails.setSubject('Registration Successful');
+        String body = 'Hello,' + '\n\n' +
+        'Thank you for reaching out to us!' + '\n\n' +
+        'Thanks and Regards,' + '\n' +
+        'Hamsa';
+        emails.setPlainTextBody(body);        
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] {emails});
+    }
+}
