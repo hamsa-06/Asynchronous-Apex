@@ -1,0 +1,21 @@
+Update Account Rating asynchronously based on related opportunity outcomes
+
+public with sharing class AccountRatingBasedOnOpportunity {
+    public static void updateAccount(Id accountId){
+        List<Account> accOpp = [SELECT Id,(SELECT Id,StageName FROM Opportunities) FROM Account WHERE Id =: accountId];
+        for(Opportunity opp:accOpp[0].Opportunities){
+            if(opp.StageName =='Closed Won'){
+                accOpp[0].Rating = 'Hot';
+                update accOpp[0];
+            }
+            else if(opp.StageName == 'Closed Lost'){
+                accOpp[0].Rating = 'Cold';
+                update accOpp[0];
+            }
+            else{
+                accOpp[0].Rating = 'Warm';
+                update accOpp[0];
+            }
+        }
+    }
+}
