@@ -1,0 +1,28 @@
+Create Multiple Account Creation
+
+public with sharing class BulkAccountCreation implements Database.Batchable<Integer> {
+    public Iterable<Integer> start(Database.BatchableContext bc){
+        List<Integer> ids = new List<Integer>();
+        for(Integer i =1;i<100;i++){
+            ids.add(i);
+        }
+        return ids;
+    }
+    public void execute(Database.BatchableContext bc,List<Integer> ids){
+        List<Account> accList = new List<Account>();
+        for(Integer i :ids){
+            Account acc = new Account();
+            acc.Name = 'Account '+i;
+            acc.Industry = 'Technology';
+            acc.AnnualRevenue =10000;
+            acc.Phone = '9470891000';
+            accList.add(acc);
+        }
+        if(!accList.isEmpty()){
+            insert accList;
+        }
+    }
+    public void finish(Database.BatchableContext bc){
+        System.debug('Batch process completed successfully');
+    }
+}
