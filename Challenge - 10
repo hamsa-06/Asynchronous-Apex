@@ -1,0 +1,13 @@
+Send a Follow up email aftera case is closed
+
+public with sharing class CaseClose {
+    @future
+    public static void sendEmail(Id caseId){
+        Case c = [SELECT Id,Subject,Status,ContactEmail FROM Case WHERE Id =: caseId AND Status = 'Escalated' LIMIT 1];
+        Messaging.SingleEmailMessage emails = new Messaging.SingleEmailMessage();
+        emails.setToAddresses(new String[] {c.ContactEmail});
+        emails.setSubject('Case Closed');
+        emails.setPlainTextBody('Hello,your case with subject '+c.Subject+' has been Closed successfully');
+        Messaging.sendEmail(new Messaging.SingleEmailMessage[] {emails});
+    }
+}
