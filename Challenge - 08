@@ -1,0 +1,17 @@
+Sending SMS when lead is inserted
+
+public with sharing class SendSMSLead {
+    @future(callout = true)
+    public static void leadCreationSMS(Id leadID){
+        Lead l = [SELECT Id,FirstName,LastName,Phone FROM Lead WHERE Id=:leadID LIMIT 1];
+        HTTPRequest req = new HTTPRequest();
+        req.setEndPoint('https://api.twilio.com/2010-04-01/Accounts/{AC6bae76add29d93f3488f0c8c0148f528}/Messages.json');
+        req.setMethod('POST');
+        req.setHeader('Authorization', 'Basic ' + EncodingUtil.base64Encode(Blob.valueOf('AC6bae76add29d93f3488f0c8c0148f528:1e246b7584ac6579edcc86b2d6f267d3')));
+        req.setHeader('Content-Type', 'application/x-www-form-urlencoded');     
+        String body = 'To = ' +l.phone + 'Body = ' +'Hello '+l.FirstName +' '+l.LastName +'Your lead has been created successfully'; 
+        req.setBody(body);
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+    }
+}
