@@ -1,0 +1,16 @@
+Automatically update the close date of opportunity based on certain condition
+
+public with sharing class OpportunityCloseDate implements Database.Batchable<SObject>{
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        return Database.getQueryLocator([SELECT Id,CloseDate,StageName FROM Opportunity WHERE StageName = 'Proposal/Price Quote' AND CloseDate < TODAY]);
+    }
+    public static void execute(Database.BatchableContext bc,List<Opportunity> op){
+        for(Opportunity o:op){
+            o.CloseDate = System.today().addDays(15);
+        }
+        update op;
+    }
+    public void finish(Database.BatchableContext bc){
+        System.debug('Batch process completed successfully.');
+    }
+}
