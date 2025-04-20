@@ -1,0 +1,22 @@
+Make a HTTP calalout when case is closed
+
+public with sharing class CaseCallout {
+    @future(callout = true)
+    public static void sendHttpCallouts(Id caseId){
+        Case c = [SELECT Id,Subject,Status,Priority,Origin FROM Case WHERE Id =: caseId LIMIT 1];
+        HTTPRequest req = new HTTPRequest();
+        req.setEndPoint('https://webhook.site/89e6a107-33dc-41bb-821e-31bbca490e6d');
+        req.setMethod('POST');
+        req.setHeader('Content-Type','application/json');
+        String body = JSON.serialize(new Map<String,object>{
+            'caseId' => c.Id,
+            'subject' =>c.subject,
+            'status' =>c.status,
+            'priority' => c.priority,
+            'origin' => c.origin
+        });
+        req.setBody(body);
+        Http http = new Http();
+        HttpResponse res = http.send(req);
+    }
+}
