@@ -1,0 +1,20 @@
+Automatically create Task for sales rep on opportunity updates
+
+public with sharing class TaskCreation implements Queueable{
+    public static void execute(QueueableContext context){
+        List<Opportunity> oppList = [SELECT Id,Name FROM Opportunity WHERE StageName = 'Closed Won' AND CloseDate = TODAY];
+        List<Task> tasklist = new List<Task>();
+        for(Opportunity opp:oppList){
+            Task t = new Task();
+            t.Subject ='Follow up on Opportunity';
+            t.WhatId = opp.Id;
+            t.OwnerId = opp.OwnerId;
+            t.Priority = 'High';
+            t.Status = 'Not Started';
+            tasklist.add(t);
+        }
+        if(!tasklist.isEmpty()){
+            insert tasklist;
+        }
+    }
+}
