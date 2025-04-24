@@ -1,0 +1,17 @@
+public with sharing class AutomaticBillingOpportunity implements Database.Batchable<SObject> {
+    public Database.QueryLocator start(Database.BatchableContext bc){
+        return Database.getQueryLocator([SELECT Id,StageName,AccountId FROM Opportunity WHERE StageName = 'Closed Won']);
+    }
+    public void execute(Database.BatchableContext bc,List<Opportunity> op){
+        for(Opportunity o:op){
+            Invoice i = new Invoice();
+            i.DueDate = System.today().addDays(15);
+            i.BillingAccountId = o.AccountId;
+            insert i;
+        }
+    }
+    public void finish(Database.BatchableContext bc){
+        System.debug('Batch process completed successfully.');
+    }
+    
+}
